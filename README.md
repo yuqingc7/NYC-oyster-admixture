@@ -1,4 +1,4 @@
-# LIS-oyster-admixture
+# NYC-oyster-admixture
 This repository stores scripts for Hudson River Raritan and Long Island Sound oyster admixture manuscript. 
 
 ## Acknowledgement
