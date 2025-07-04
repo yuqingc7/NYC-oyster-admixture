@@ -3,7 +3,8 @@
 #SBATCH --job-name=ALL_Re0.2_ALLsnplist_ngsld_est_by_chr.sh # job name
 #SBATCH --mail-user=yc2644@cornell.edu # where to send mail
 #SBATCH --mail-type=END,FAIL # mail events (NONE, BEGIN, END, FAIL, ALL)
-#SBATCH --ntasks=14 # number of tasks; by default, 1 task=1 slot=1 thread
+#SBATCH --ntasks=1 # number of tasks; by default, 1 task=1 slot=1 thread
+#SBATCH --cpus-per-task=12
 #SBATCH --nodes=1 # number of nodes, i.e., machines; all non-MPI jobs *must* run on a single node, i.e., '--nodes=1' must be given here
 #SBATCH --mem=20gb # job memory request; request 4 GB of memory for this job
 #SBATCH --output=ALL_Re0.2_ALLsnplist_maf0.05_pind0.86_ngsld_est_by_chr.sh.out.%A_%a # write stdout+stderr to this file; %j will be automatically replaced by the job ID
@@ -32,7 +33,7 @@ ngsLD \
 --n_sites $cnt \
 --max_kb_dist 0 \
 --max_snp_dist 0 \
---n_threads 14 \
+--n_threads 12 \
 --out $BASEDIR"/results_ngsld/ALL_Re0.2_ALLsnplist_maf0.05_pval1e-6_pind0.86_cv30_noinver_ch"$SLURM_ARRAY_TASK_ID".ld"
 
 #cut -f1,4,7- $BASEDIR"/results_ngsld/ALL_Re0.2_ALLsnplist_maf0.05_pval1e-6_pind0.86_cv30_noinver_ch"$SLURM_ARRAY_TASK_ID".ld" > $BASEDIR"/results_ngsld/ALL_Re0.2_ALLsnplist_maf0.05_pval1e-6_pind0.86_cv30_noinver_ch"$SLURM_ARRAY_TASK_ID"_new.ld"

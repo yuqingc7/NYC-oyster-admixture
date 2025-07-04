@@ -3,7 +3,8 @@
 #SBATCH --job-name=ALL_Re0.2_ALLsnplist_maf0.05_pind0.86_cv30_noinver_by_chr.sh
 #SBATCH --mail-user=yc2644@cornell.edu # where to send mail
 #SBATCH --mail-type=END,FAIL # mail events (NONE, BEGIN, END, FAIL, ALL)
-#SBATCH --ntasks=12 # number of tasks; by default, 1 task=1 slot=1 thread
+#SBATCH --ntasks=1 # number of tasks; by default, 1 task=1 slot=1 thread
+#SBATCH --cpus-per-task=12
 #SBATCH --nodes=1 # number of nodes, i.e., machines; all non-MPI jobs *must* run on a single node, i.e., '--nodes=1' must be given here
 #SBATCH --mem=40gb # job memory request; request 4 GB of memory for this job
 #SBATCH --output=ALL_Re0.2_ALLsnplist_maf0.05_pind0.86_cv30_noinver_by_chr.out.%j

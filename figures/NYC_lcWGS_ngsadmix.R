@@ -130,8 +130,7 @@ pop_q_reorder_ord_long <- pop_q_reorder %>%
 
 ggplot(pop_q_reorder_ord_long, aes(x = Ind, y=Q, fill=reorder(Source, -Q))) +
   geom_col(position = position_stack(), width=1) +
-  #scale_fill_manual(values = c("#33A02C","#A6CEE3","#B2DF8A","#1F78B4","#FB9A99"))+
-  scale_fill_manual(values = c("#FFFF99","#C77CFF","#B15928","#FF61C3","#00BFC4"))+
+  scale_fill_manual(values = c("#FFFF99","#4681a9","#8DA0CB","#B55374","#E9C359"))+
   #                   labels = c("Native", "AQ_2","AQ_1A","AQ_4", "AQ_3")) +
   geom_vline(xintercept = c(17.5, 37.5, 47.5, 57.5, 82.5, 106.5)) +
   scale_x_continuous(breaks = c(8, 27, 43, 52, 70, 94, 121),
@@ -145,5 +144,5 @@ ggplot(pop_q_reorder_ord_long, aes(x = Ind, y=Q, fill=reorder(Source, -Q))) +
         legend.title = element_blank(),
         axis.text = element_text(color="black", size=12),
         legend.text = element_text(color="black", size=12),
-        plot.title = element_text(size = 16))
-
+        plot.title = element_text(size = 16))+
+  guides(fill = "none")

@@ -261,7 +261,7 @@ x <- c("FI1012","CT5786", "NEH", "UMFS", "HH13a", "SV0512a","CT5785")
 all_q <- cbind(pop, all) %>% 
   mutate(p =  factor(p, levels = x)) %>%
   arrange(p) %>%
-  dplyr::rename(AQ_4=V1, AQ_2=V2, AQ_3=V3, AQ_1A=V4, Native=V5) 
+  dplyr::rename(AQ_4=V2, AQ_2=V5, AQ_3=V1, AQ_1A=V4, Native=V3) 
 
 K=2
 targets <- c("HHSV8586","HHSV85FI","HHSV85UMFS","HHSV85NEH")
@@ -310,12 +310,13 @@ sum_t <- left_join(sum_true_t,sum_test_t) %>%
   mutate(p = ifelse(p == "CT5785", "Cv5785", p)) %>% 
   mutate(p = factor(p, levels = c("HH13a","SV0512a","Cv5785")))
 
+# all individuals
 ggplot(subset(sum_t, p %in% c("SV0512a", "Cv5785"))) +
   geom_bar(aes(x=p, y=`true Q`,fill=source),
            stat = 'identity', position = 'stack', width = 0.15, 
            color="black",just = -2.8) +
   scale_fill_manual(values=c("#8DA0CB", "#4681a9","#E9C359", "#B55374")) +
-  labs(x="", y="", title="lcWGS: Population Average of Aquaculture-Sourced Admixture Levels",
+  labs(x="", y="", title="lcWGS: Population Average of Aquaculture-Source Admixture Levels",
        fill="Source of\nAdmixture")+
   theme_bw() +
   geom_bar(aes(x=p,y=Q,fill=source),
@@ -333,6 +334,122 @@ ggplot(subset(sum_t, p %in% c("SV0512a", "Cv5785"))) +
         plot.title = element_text(size = 14)) +
   scale_x_discrete(expand = expansion(add=c(0.5,0.7)))
 
+sum_t
+
+sum_t %>% filter(p=="SV0512a"|p=="Cv5785") %>% 
+  mutate(perc_overestimation=100*(Q-`true Q`)/`true Q`)
+
+sum_true_all <- sum_t %>%
+  filter(p == "SV0512a" | p == "Cv5785") %>%
+  dplyr::group_by(p) %>%
+  dplyr::summarize(
+    sum_true_Q = sum(`true Q`)
+  )
+
+sum_t %>% filter(p=="SV0512a") %>% 
+  mutate(perc_underestimation=100*(sum_true_all$sum_true_Q[1]-Q)/Q)
+
+sum_t %>% filter(p=="Cv5785") %>% 
+  mutate(perc_underestimation=100*(sum_true_all$sum_true_Q[2]-Q)/Q)
+
+# admixed individuals only, using 90th quantile admixture threshold
+quantile(1-subset(all_q, p == "HH13a")$Native,probs=0.90) #0.0081
+sapply(subset(Q, p == "HH13a")[,3:6], function(x) quantile(x, 0.90))
+# HHSV8586.90%   HHSV85FI.90% HHSV85UMFS.90%  HHSV85NEH.90% 
+#   0.005621792    0.006789585    0.007781744    0.010871305 
+zero_HHSV85FI <- 0.0068
+zero_HHSV8586 <- 0.0056
+zero_HHSV85NEH <- 0.0109
+zero_HHSV85UMFS <- 0.0078
+zero_true <- 0.0081
+
+sum_true_t <- all_q %>% 
+  filter(1-Native>zero_true) %>% 
+  dplyr::group_by(p) %>% 
+  dplyr::summarise(
+    AQ_1A = mean(AQ_1A),
+    AQ_2 = mean(AQ_2),
+    AQ_3 = mean(AQ_3),
+    AQ_4 = mean(AQ_4)
+  ) %>% 
+  filter(p %in% c("HH13a","SV0512a","CT5785")) %>% 
+  pivot_longer(cols = c("AQ_1A","AQ_2","AQ_3","AQ_4"), 
+               names_to = "source", values_to = "true Q")
+
+q_list <- list()
+for (target in targets) {
+  file_name <- paste0("/workdir/yc2644/CV_NYC_lcWGS/results_ngsadmix/ngsadmix_K", K, "_run1_ALL_ds_Re0.2_",
+                      target, "_ALLsnplist_LDpruned_maf0.05_pval1e-6_pind0.86_cv30_noinver.qopt")
+  q <- read.table(file_name)
+  pop <- read.table(paste0("/workdir/yc2644/CV_NYC_lcWGS/results_ngsadmix/ALL_ds_Re0.2_",target,".info"), as.is=T) %>% 
+    dplyr::rename(p=V1, ind=V2)
+  pop_q <- cbind(pop, q) %>% 
+    filter(p %in% c("HH13a","SV0512a","CT5785")) %>% 
+    mutate(p = factor(p, levels = c("HH13a","SV0512a","CT5785")))
+  pop_q$q <- if(pop_q$V1[1] < pop_q$V2[1]) pop_q$V1 else pop_q$V2
+  pop_q$q <- ifelse(pop_q$q > quantile(subset(pop_q, p == "HH13a")$q, 0.90), 
+                    pop_q$q, NA)
+  
+  q_list[[paste0(target)]] <- pop_q$q
+}
+Q <- cbind(pop %>% filter(p %in% c("HH13a","SV0512a","CT5785")),as.data.frame(q_list))
+
+sum_test_t <- Q %>% 
+  dplyr::group_by(p) %>% 
+  dplyr::summarise(
+    AQ_1A = mean(HHSV85FI, na.rm = TRUE),
+    AQ_2 = mean(HHSV8586, na.rm = TRUE),
+    AQ_3 = mean(HHSV85NEH, na.rm = TRUE),
+    AQ_4 = mean(HHSV85UMFS, na.rm = TRUE)
+  ) %>% 
+  pivot_longer(cols = c("AQ_1A","AQ_2","AQ_3","AQ_4"), 
+               names_to = "source", values_to = "Q")
+
+sum_t <- left_join(sum_true_t,sum_test_t) %>% 
+  mutate(p = ifelse(p == "CT5785", "Cv5785", p)) %>% 
+  mutate(p = factor(p, levels = c("HH13a","SV0512a","Cv5785")))
+
+ggplot(subset(sum_t, p %in% c("SV0512a", "Cv5785"))) +
+  geom_bar(aes(x=p, y=`true Q`,fill=source),
+           stat = 'identity', position = 'stack', width = 0.15, 
+           color="black",just = -2.8) +
+  scale_fill_manual(values=c("#8DA0CB", "#4681a9","#E9C359", "#B55374")) +
+  labs(x="", y="", title="lcWGS: Population Average of Aquaculture-Source Admixture Levels",
+       fill="Source of\nAdmixture")+
+  theme_bw() +
+  coord_cartesian(ylim=c(0,0.085))+
+  geom_bar(aes(x=p,y=Q,fill=source),
+           stat = "identity", position = position_dodge(width = 0.8), width = 0.6, 
+           color="black")+
+  geom_vline(xintercept = c(1.6),linetype = "dashed") +
+  theme(axis.ticks.x = element_blank(),
+        #axis.text.x = element_blank(),
+        #legend.title = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        axis.text = element_text(color="black", size=12, hjust=-0.1),
+        legend.text = element_text(color="black", size=12),
+        legend.title = element_text(color="black", size=12),
+        plot.title = element_text(size = 14)) +
+  scale_x_discrete(expand = expansion(add=c(0.5,0.7)))
+
+sum_t
+
+sum_t %>% filter(p=="SV0512a"|p=="Cv5785") %>% 
+  mutate(perc_overestimation=100*(Q-`true Q`)/`true Q`)
+
+sum_true_all <- sum_t %>%
+  filter(p == "SV0512a" | p == "Cv5785") %>%
+  dplyr::group_by(p) %>%
+  dplyr::summarize(
+    sum_true_Q = sum(`true Q`)
+  )
+
+sum_t %>% filter(p=="SV0512a") %>% 
+  mutate(perc_underestimation=100*(sum_true_all$sum_true_Q[1]-Q)/Q)
+
+sum_t %>% filter(p=="Cv5785") %>% 
+  mutate(perc_underestimation=100*(sum_true_all$sum_true_Q[2]-Q)/Q)
 
 # sites -------------------------------------------------------------------
 
