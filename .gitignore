@@ -2,3 +2,5 @@
 *.prj
 *.shp
 *.shx
+*.vcf.gz
+results_*
