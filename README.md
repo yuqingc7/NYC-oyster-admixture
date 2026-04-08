@@ -8,7 +8,7 @@ This repository stores scripts for Hudson River Raritan and Long Island Sound oy
 - misc: comparison between ddRAD and lcWGS, coding region test, etc. 
 
 ## Acknowledgements
-Scripts processing lcWGS data are mostly modified from [Therkildson Lab](https://github.com/therkildsen-lab/data-processing/blob/master/lcwgs_data_processing.md) scripts for low coverage whole-genome sequencing data processing and analysis. 
+Scripts processing lcWGS data are mostly modified from [Therkildsen Lab](https://github.com/therkildsen-lab/data-processing/blob/master/lcwgs_data_processing.md) scripts for low coverage whole-genome sequencing data processing and analysis. 
 
 - [Tutorials for analysis of low-coverage whole genome sequencing data](https://github.com/nt246/lcwgs-guide-tutorial)
 - [dDocent RADSeq Bioinformatics](http://www.ddocent.com/UserGuide/)
