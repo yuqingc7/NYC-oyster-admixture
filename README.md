@@ -1,5 +1,5 @@
 # NYC-oyster-admixture
-This repository stores scripts for Hudson River Raritan and Long Island Sound oyster admixture manuscript "Spatial and temporal admixture patterns from farm oysters supplementing wild population recruitment". 
+This repository stores scripts for Hudson River Raritan and Long Island Sound oyster admixture manuscript "Spatial and temporal admixture patterns from farm oysters supplementing wild population recruitment". An archive of this repo has been deposited on Dryad https://doi.org/10.5061/dryad.08kprr5hv. 
 
 - ddRAD: scripts processing & analyzing ddRAD-Seq data
 - lcWGS: scripts processing & analyzing low coverage WGS data
